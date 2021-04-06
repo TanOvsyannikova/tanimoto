@@ -1,0 +1,62 @@
+@model TanimotoCoefficient.Models.TanimotoCoefficientViewModel
+
+@{
+    ViewData["Title"] = "Tanimoto";
+}
+
+<h1>Tanimoto</h1>
+<form asp-controller="Tanimoto" asp-action="Index" method="get">
+    <p>
+        <select asp-for="CriticName1" asp-items="Model.Critics"></select>
+        <select asp-for="CriticName2" asp-items="Model.Critics"></select>
+        
+        <input type="submit" value="Calculate"/>
+    </p>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstCritic[0].FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstCritic[0].MovieName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstCritic[0].Rating)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.FirstCritic)
+        {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.FullName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.MovieName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Rating)
+        </td>
+    </tr>}
+
+        @foreach (var item in Model.SecondCritic)
+        {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.FullName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.MovieName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Rating)
+        </td>
+    </tr>}
+                </tbody>
+</table>
+
+<p>@Html.DisplayFor(model => model.Coefficient)</p>

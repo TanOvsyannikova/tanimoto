@@ -1,0 +1,57 @@
+@model TanimotoCoefficient.Models.CriticReviewViewModel
+
+@{ ViewData["Title"] = "Database"; }
+
+<h1>Critics Database</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<form asp-controller="Critic" asp-action="Index" method="get">
+    <p>
+        <select asp-for="CriticName" asp-items="Model.Critics">
+            <option value="">All</option>
+        </select>
+
+        Title: <input type="text" asp-for="SearchString" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MoviesRatedByCritic[0].FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MoviesRatedByCritic[0].MovieName) @*movie title*@
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MoviesRatedByCritic[0].Rating) @*movie rating*@
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.MoviesRatedByCritic)
+        {
+            <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rating)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+            </tr>
+        }       
+    </tbody>
+</table>
