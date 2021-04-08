@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,77 +27,71 @@ namespace TanimotoCoefficient.Controllers
                                              orderby m.FullName
                                              select m.FullName;
 
+            
 
-            //MARK: this part of the code doesn't work properly yet
+            Dictionary<string, List<CriticMovieList>> dic = new();
 
-
-            var firstCritic = from m in _context.Critic
-                              select m;
-
-            ////Dictionary<string, Dictionary<string, double>> firstDic = new();
-            //Dictionary<string, Movie> firstDic = new();
-
-            if (!string.IsNullOrEmpty(criticName1))
+            if (!string.IsNullOrEmpty(criticName1) && !string.IsNullOrEmpty(criticName2) && criticName1 != criticName2)
             {
-                firstCritic = firstCritic.Where(s => s.FullName == criticName1);
+                var selection = _context.Critic.Where(critic => (critic.FullName == criticName1) || (critic.FullName == criticName2))
+                                               .AsEnumerable()
+                                               .OrderBy(critic => critic.FullName)
+                                               .ThenBy(m => m.MovieName)
+                                               .GroupBy(critic => critic.FullName)
+                                               .ToDictionary(i => i.Key, i => i
+                                                                          .Select(a => new CriticMovieList { Title = a.MovieName, Rating = a.Rating })
+                                                                          .ToList());
+                dic = selection;
             }
 
-            //firstDic = await firstCritic.ToDictionaryAsync(p => p.FullName, c => new Movie(c.MovieName, c.Rating));
-
-            var secondCritic = from m in _context.Critic
-                              select m;
-
-            //Dictionary<string, Movie> secondDic = new();
-
-            if (!string.IsNullOrEmpty(criticName1))
+            foreach (var critic in dic.Keys)
             {
-                secondCritic = secondCritic.Where(s => s.FullName == criticName2);
+                foreach (var film in dic[critic])
+                {
+                    if (film.Rating > 3)
+                    {
+                        film.Rating = 1; //liked this film
+                    } else
+                    {
+                        film.Rating = 0; //disliked the film
+                    }
+                }
             }
 
-            //secondDic = await secondCritic.ToDictionaryAsync(p => p.FullName, c => new Movie(c.MovieName, c.Rating));
+            double coef = 0;
 
-            //foreach (var movie in firstDic)
-            //{
-            //    if (movie.Value.Rating < 3)
-            //    {
-            //        movie.Value.Rating = 0;
-            //    } else
-            //    {
-            //        movie.Value.Rating = 1;
-            //    }
-            //}
+            if (dic.Count() != 0)
+            {
+                int a = dic[criticName1].Count();
+                int b = dic[criticName2].Count();
 
-            //foreach (var movie in secondDic)
-            //{
-            //    if (movie.Value.Rating < 3)
-            //    {
-            //        movie.Value.Rating = 0;
-            //    }
-            //    else
-            //    {
-            //        movie.Value.Rating = 1;
-            //    }
-            //}
+                int c = dic[criticName1].Select(x => new { x.Title, x.Rating })
+                     .Intersect(dic[criticName2].Select(x => new { x.Title, x.Rating })).Count();
 
-            //int a = firstDic.Count;
-            //int b = secondDic.Count;
-            //double c = 0.0;
 
-            //c = (firstDic.Values).Intersect(secondDic.Values).Count();
+                //for (int film = 0; film < dic.Count; film++)
+                //{
+                //    if (dic[criticName1][film] == dic[criticName1][film])
+                //    {
+                //        c += 1;
+                //    }
+                //}
 
-            //double coef = c / (a + b - c);
-
+                coef = c / ((double)a + (double)b - c);
+            }
+            
 
             var tanimotoCoefficientVM = new TanimotoCoefficientViewModel
             {
                 Critics = new SelectList(await criticQuery.Distinct().ToListAsync()),
-                FirstCritic = await firstCritic.ToListAsync(),
-                SecondCritic = await secondCritic.ToListAsync(),
-                Coefficient = 0
+                ListOfCritics = dic,
+                Coefficient = coef
+                //Coefficient = string.Format("{0:0.00}", coef) ?? ""
             };
 
             return View(tanimotoCoefficientVM);
         }
+
 
     }
 }

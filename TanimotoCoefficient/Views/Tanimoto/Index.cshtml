@@ -1,62 +1,55 @@
 @model TanimotoCoefficient.Models.TanimotoCoefficientViewModel
 
-@{
-    ViewData["Title"] = "Tanimoto";
-}
+@{ ViewData["Title"] = "Tanimoto"; }
 
 <h1>Tanimoto</h1>
 <form asp-controller="Tanimoto" asp-action="Index" method="get">
     <p>
         <select asp-for="CriticName1" asp-items="Model.Critics"></select>
         <select asp-for="CriticName2" asp-items="Model.Critics"></select>
-        
-        <input type="submit" value="Calculate"/>
+
+        <input type="submit" value="Calculate" />
     </p>
 </form>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.FirstCritic[0].FullName)
+                <h6>Full Name</h6>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FirstCritic[0].MovieName)
+                <h6>Movie Title</h6> @*movie title*@
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FirstCritic[0].Rating)
+                <h6>Rating</h6>
             </th>
-            <th></th>
+            
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.FirstCritic)
+        @foreach (var critic in Model.ListOfCritics)
         {
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => critic.Key)
+    </td>
+    @foreach (var movie in critic.Value)
+    {
     <tr>
+        <td></td>
+
         <td>
-            @Html.DisplayFor(modelItem => item.FullName)
+            @Html.DisplayFor(modelItem => movie.Title)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.MovieName)
+            @Html.DisplayFor(modelItem => movie.Rating)
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Rating)
-        </td>
+    </tr>
+}
     </tr>}
 
-        @foreach (var item in Model.SecondCritic)
-        {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.FullName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.MovieName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Rating)
-        </td>
-    </tr>}
-                </tbody>
+
+    </tbody>
 </table>
 
-<p>@Html.DisplayFor(model => model.Coefficient)</p>
+<h4>Tanimoto coefficient is: @String.Format("{0:0.00}", Model.Coefficient)</h4>
