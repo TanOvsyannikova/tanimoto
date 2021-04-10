@@ -11,5 +11,6 @@ namespace TanimotoCoefficient.Models
         public string CriticName1 { get; set; }
         public string CriticName2 { get; set; }
         public double Coefficient { get; set; }
+        public List<Tuple<string, double>> Similarities { get; set; }
     }
 }

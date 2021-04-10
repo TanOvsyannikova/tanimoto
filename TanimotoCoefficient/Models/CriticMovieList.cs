@@ -6,12 +6,8 @@ namespace TanimotoCoefficient.Models
 {
     public class CriticMovieList
     {
-        
         public string Title { get; set; }
-
         public double Rating { get; set; }
-
-        
     }
 
     class ItemEqualityComparer : IEqualityComparer<CriticMovieList>
@@ -27,4 +23,6 @@ namespace TanimotoCoefficient.Models
             return obj.Title.GetHashCode();
         }
     }
+
+    
 }

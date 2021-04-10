@@ -53,3 +53,11 @@
 </table>
 
 <h4>Tanimoto coefficient is: @String.Format("{0:0.00}", Model.Coefficient)</h4>
+
+<h4>This critic might also like their tastes:</h4>
+<ul>
+    @foreach (var tuple in Model.Similarities)
+    {
+    <li>@tuple.Item1 @String.Format("{0:0.00}", tuple.Item2)</li>
+    }
+</ul>

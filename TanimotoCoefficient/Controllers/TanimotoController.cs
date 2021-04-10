@@ -30,19 +30,33 @@ namespace TanimotoCoefficient.Controllers
             
 
             Dictionary<string, List<CriticMovieList>> dic = new();
+            Dictionary<string, List<CriticMovieList>> viewForChosen = new();
 
             if (!string.IsNullOrEmpty(criticName1) && !string.IsNullOrEmpty(criticName2) && criticName1 != criticName2)
             {
-                var selection = _context.Critic.Where(critic => (critic.FullName == criticName1) || (critic.FullName == criticName2))
+                var selection1 = _context.Critic
                                                .AsEnumerable()
                                                .OrderBy(critic => critic.FullName)
                                                .ThenBy(m => m.MovieName)
-                                               .GroupBy(critic => critic.FullName)
-                                               .ToDictionary(i => i.Key, i => i
+                                               .GroupBy(critic => critic.FullName);
+
+
+                var selection2 = _context.Critic
+                                               .Where(critic => (critic.FullName == criticName1) || (critic.FullName == criticName2))
+                                               .AsEnumerable()
+                                               .OrderBy(critic => critic.FullName)
+                                               .ThenBy(m => m.MovieName)
+                                               .GroupBy(critic => critic.FullName);
+
+                viewForChosen = selection2.ToDictionary(i => i.Key, i => i
                                                                           .Select(a => new CriticMovieList { Title = a.MovieName, Rating = a.Rating })
                                                                           .Distinct(new ItemEqualityComparer())
-                                                                          .ToList());
-                dic = selection;
+                                                                          .ToList()); ;
+
+                dic = selection1.ToDictionary(i => i.Key, i => i
+                                                                          .Select(a => new CriticMovieList { Title = a.MovieName, Rating = a.Rating })
+                                                                          .Distinct(new ItemEqualityComparer())
+                                                                          .ToList()); ;
             }
 
             foreach (var critic in dic.Keys)
@@ -60,34 +74,60 @@ namespace TanimotoCoefficient.Controllers
             }
 
             double coef = 0;
+            double coefToView = 0;
 
-            if (dic.Count() != 0)
+            double findTanimoto(string name1, string name2)
             {
-                int a = dic[criticName1].Count();
-                int b = dic[criticName2].Count();
+                if (dic.Count() != 0)
+                {
+                    int a = dic[name1].Count();
+                    int b = dic[name2].Count();
 
-                int c = dic[criticName1].Select(x => new { x.Title, x.Rating })
-                     .Intersect(dic[criticName2].Select(x => new { x.Title, x.Rating })).Count();
+                    int c = dic[name1].Select(x => new { x.Title, x.Rating })
+                         .Intersect(dic[name2].Select(x => new { x.Title, x.Rating })).Count();
 
+                    coef = c / ((double)a + (double)b - c);
+                }
 
-                //for (int film = 0; film < dic.Count; film++)
-                //{
-                //    if (dic[criticName1][film] == dic[criticName1][film])
-                //    {
-                //        c += 1;
-                //    }
-                //}
-
-                coef = c / ((double)a + (double)b - c);
+                return coef;
             }
-            
+
+            List<Tuple<string, double>> similar = new();
+            foreach (var critic in dic.Keys)
+            {
+                if (criticName1 != critic)
+                {
+                    double coe = findTanimoto(criticName1, critic);
+
+
+                    //Recommend critics with Tanimoto Coefficient > 0.3 only
+
+                    //if (coe > 0.3)
+                    //{
+                    //    similar.Add((critic, coe).ToTuple());
+                    //}
+
+                    //Recommend all critics in DB
+                    similar.Add((critic, coe).ToTuple());
+
+                    if (critic == criticName2)
+                    {
+                        coefToView = coe;
+                    }
+                }
+
+                
+                
+            }
+            similar.Sort((x, y) => y.Item2.CompareTo(x.Item2));
+
 
             var tanimotoCoefficientVM = new TanimotoCoefficientViewModel
             {
                 Critics = new SelectList(await criticQuery.Distinct().ToListAsync()),
-                ListOfCritics = dic,
-                Coefficient = coef
-                //Coefficient = string.Format("{0:0.00}", coef) ?? ""
+                ListOfCritics = viewForChosen,
+                Coefficient = coefToView,
+                Similarities = similar
             };
 
             return View(tanimotoCoefficientVM);
