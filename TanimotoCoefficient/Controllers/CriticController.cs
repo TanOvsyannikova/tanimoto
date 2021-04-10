@@ -88,6 +88,7 @@ namespace TanimotoCoefficient.Controllers
         {
             if (ModelState.IsValid)
             {
+                
                 _context.Add(critic);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

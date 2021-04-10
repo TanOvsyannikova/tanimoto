@@ -40,6 +40,7 @@ namespace TanimotoCoefficient.Controllers
                                                .GroupBy(critic => critic.FullName)
                                                .ToDictionary(i => i.Key, i => i
                                                                           .Select(a => new CriticMovieList { Title = a.MovieName, Rating = a.Rating })
+                                                                          .Distinct(new ItemEqualityComparer())
                                                                           .ToList());
                 dic = selection;
             }
