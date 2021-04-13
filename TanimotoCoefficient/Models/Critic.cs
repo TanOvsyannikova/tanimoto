@@ -24,3 +24,4 @@ namespace TanimotoCoefficient.Models
         public double Rating { get; set; }
     }
 }
+

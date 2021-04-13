@@ -45,7 +45,7 @@ namespace TanimotoCoefficient.Controllers
                                                .Where(critic => (critic.FullName == criticName1) || (critic.FullName == criticName2))
                                                .AsEnumerable()
                                                .OrderBy(critic => critic.FullName)
-                                               .ThenBy(m => m.MovieName)
+                                               .ThenBy(m => m.MovieName.ToLower())
                                                .GroupBy(critic => critic.FullName);
 
                 viewForChosen = selection2.ToDictionary(i => i.Key, i => i

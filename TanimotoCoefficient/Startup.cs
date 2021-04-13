@@ -27,6 +27,9 @@ namespace TanimotoCoefficient
         {
             services.AddControllersWithViews();
 
+            //Имя строки подключения передается в контекст путем вызова метода для объекта DbContextOptions.
+            //При локальной разработке система конфигурации ASP.NET Core считывает строку подключения из файла appsettings.json
+
             services.AddDbContext<TanimotoCoefficientContext>(options =>
             options.UseSqlite(Configuration.GetConnectionString("TanimotoCoefficientContext")));
 
